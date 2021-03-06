@@ -1,81 +1,45 @@
 package main
 
 import (
+	"context"
 	"log"
-	"strings"
+	"os"
+	"os/signal"
+	"syscall"
 
+	"github.com/haroldadmin/getignore/app"
 	"github.com/haroldadmin/getignore/flags"
 	_ "github.com/haroldadmin/getignore/flags"
-	"github.com/haroldadmin/getignore/git"
-	"github.com/manifoldco/promptui"
 )
 
 func main() {
 	log.SetFlags(0)
-	repoDir, err := git.Clone(flags.NoUpdate)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	ignores := &git.Ignores{
-		RepoDir: repoDir,
-	}
+	appContext, cancel := context.WithCancel(context.Background())
 
-	err = ignores.FindIgnores()
-	if err != nil {
-		log.Fatal(err)
-	}
+	interrupts := make(chan os.Signal, 1)
+	done := make(chan struct{}, 1)
+	signal.Notify(interrupts, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	if flags.SearchQuery != "" {
-		results := search(ignores, flags.SearchQuery)
-		if len(results) == 0 {
-			log.Printf("No matches found")
+	go func() {
+		app, err := app.Create(appContext, app.GetIgnoreOptions{
+			ShouldUpdate: flags.NoUpdate,
+			SearchQuery:  flags.SearchQuery,
+			Output:       flags.OutputFile,
+		})
+
+		if err != nil {
+			log.Print(err)
 		}
-		output := strings.Join(processMatches(results), ", ")
-		log.Print(output)
-		return
+
+		app.Start(appContext)
+		done <- struct{}{}
+	}()
+
+	select {
+	case <-interrupts:
+		log.Print("Received interrupt")
+		cancel()
+	case <-done:
 	}
-
-	searchPrompt := promptui.Prompt{Label: "Search"}
-	result, err := searchPrompt.Run()
-	if err != nil {
-		log.Printf("An error occurred while reading the prompt: %v", err)
-		return
-	}
-
-	results := search(ignores, result)
-	if len(results) == 0 {
-		log.Printf("No matches found")
-		return
-	}
-
-	selectionPrompt := promptui.Select{
-		Label: "Results",
-		Items: processMatches(results),
-	}
-
-	_, selection, err := selectionPrompt.Run()
-	if err != nil {
-		log.Printf("Failed to read selection result: %v", err)
-		return
-	}
-
-	log.Print(selection)
-}
-
-func search(ignores *git.Ignores, query string) []git.GitIgnoreFile {
-	matches := ignores.SearchIgnores(query, 5)
-	if len(matches) == 0 {
-		return []git.GitIgnoreFile{}
-	}
-
-	return matches
-}
-
-func processMatches(matches []git.GitIgnoreFile) []string {
-	names := make([]string, 0, len(matches))
-	for _, match := range matches {
-		names = append(names, match.Name)
-	}
-	return names
 }

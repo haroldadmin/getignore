@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -11,19 +12,19 @@ import (
 
 const gitIgnoreRepo = "https://github.com/github/gitignore.git"
 
-func Clone(skipUpdate bool) (string, error) {
+func Clone(ctx context.Context, skipUpdate bool) (string, error) {
 	repoDir, err := getRepoDir()
 	if err != nil {
 		return "", err
 	}
 
-	repo, err := initRepo(repoDir)
+	repo, err := initRepo(ctx, repoDir)
 	if err != nil {
 		return "", err
 	}
 
 	if !skipUpdate {
-		err = updateRepo(repo)
+		err = updateRepo(ctx, repo)
 		if err != nil {
 			return "", err
 		}
@@ -47,7 +48,7 @@ func getRepoDir() (string, error) {
 	return repoDir, nil
 }
 
-func initRepo(repoDir string) (*goGit.Repository, error) {
+func initRepo(ctx context.Context, repoDir string) (*goGit.Repository, error) {
 	log.Printf("Attempting to open %v as a repository", repoDir)
 	repo, err := goGit.PlainOpen(repoDir)
 
@@ -57,7 +58,7 @@ func initRepo(repoDir string) (*goGit.Repository, error) {
 		}
 
 		log.Printf("Repository does not exist, attempting to clone")
-		repo, err = goGit.PlainClone(repoDir, false, &goGit.CloneOptions{
+		repo, err = goGit.PlainCloneContext(ctx, repoDir, false, &goGit.CloneOptions{
 			URL:      gitIgnoreRepo,
 			Depth:    1,
 			Tags:     goGit.NoTags,
@@ -72,14 +73,14 @@ func initRepo(repoDir string) (*goGit.Repository, error) {
 	return repo, nil
 }
 
-func updateRepo(repo *goGit.Repository) error {
+func updateRepo(ctx context.Context, repo *goGit.Repository) error {
 	log.Printf("Attempting to update the repository with latest changes")
 	workTree, err := repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("Failed to get working tree of repo: %v", err)
 	}
 
-	err = workTree.Pull(&goGit.PullOptions{RemoteName: "origin"})
+	err = workTree.PullContext(ctx, &goGit.PullOptions{RemoteName: "origin"})
 	if err != nil && err != goGit.NoErrAlreadyUpToDate {
 		return fmt.Errorf("Failed to pull latest changes: %v", err)
 	}
