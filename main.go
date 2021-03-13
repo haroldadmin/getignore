@@ -2,24 +2,23 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
 	"github.com/haroldadmin/getignore/app"
 	"github.com/haroldadmin/getignore/flags"
 	_ "github.com/haroldadmin/getignore/flags"
 )
 
 func main() {
-	log.SetFlags(0)
+	initLogger()
+	interrupts := initInterrupts()
 
 	appContext, cancel := context.WithCancel(context.Background())
-
-	interrupts := make(chan os.Signal, 1)
 	done := make(chan struct{}, 1)
-	signal.Notify(interrupts, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		app, err := app.Create(appContext, app.GetIgnoreOptions{
@@ -29,7 +28,7 @@ func main() {
 		})
 
 		if err != nil {
-			log.Print(err)
+			log.WithError(err).Fatal("Failed to initialize getignore")
 		}
 
 		app.Start(appContext)
@@ -38,8 +37,24 @@ func main() {
 
 	select {
 	case <-interrupts:
-		log.Print("Received interrupt")
+		log.Debug("Received interrupt")
 		cancel()
 	case <-done:
 	}
+}
+
+func initLogger() {
+	logLevel := log.WarnLevel
+	if flags.Verbose {
+		logLevel = log.DebugLevel
+	}
+
+	log.SetHandler(cli.Default)
+	log.SetLevel(logLevel)
+}
+
+func initInterrupts() chan os.Signal {
+	interrupts := make(chan os.Signal, 1)
+	signal.Notify(interrupts, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	return interrupts
 }

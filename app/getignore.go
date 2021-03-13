@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/apex/log"
 	"github.com/haroldadmin/getignore/files"
 	"github.com/haroldadmin/getignore/git"
 )
@@ -59,12 +59,12 @@ func (app *GetIgnore) Start(ctx context.Context) {
 	}
 
 	if err != nil {
-		log.Print(err)
+		log.WithError(err).Errorf("Search failed")
 		return
 	}
 
-	log.Printf("Selected: %v", selection.Name)
+	log.Debugf("Selected: %v", selection.Name)
 	if err := files.WriteGitignore(selection, app.output); err != nil {
-		log.Print(err)
+		log.WithError(err).Errorf("%v", err)
 	}
 }

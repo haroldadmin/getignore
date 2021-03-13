@@ -3,10 +3,10 @@ package git
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/apex/log"
 	goGit "github.com/go-git/go-git/v5"
 )
 
@@ -30,7 +30,7 @@ func Clone(ctx context.Context, skipUpdate bool) (string, error) {
 		}
 	}
 
-	log.Printf("Repository initialized at %v", repoDir)
+	log.Debugf("Repository initialized at %v", repoDir)
 	return repoDir, nil
 }
 
@@ -49,7 +49,7 @@ func getRepoDir() (string, error) {
 }
 
 func initRepo(ctx context.Context, repoDir string) (*goGit.Repository, error) {
-	log.Printf("Attempting to open %v as a repository", repoDir)
+	log.Debugf("Attempting to open %v as a repository", repoDir)
 	repo, err := goGit.PlainOpen(repoDir)
 
 	if err != nil {
@@ -57,7 +57,7 @@ func initRepo(ctx context.Context, repoDir string) (*goGit.Repository, error) {
 			return nil, fmt.Errorf("%v is not a valid git repository: %v", repoDir, err)
 		}
 
-		log.Printf("Repository does not exist, attempting to clone")
+		log.Debugf("Repository does not exist, attempting to clone")
 		repo, err = goGit.PlainCloneContext(ctx, repoDir, false, &goGit.CloneOptions{
 			URL:      gitIgnoreRepo,
 			Depth:    1,
@@ -74,7 +74,7 @@ func initRepo(ctx context.Context, repoDir string) (*goGit.Repository, error) {
 }
 
 func updateRepo(ctx context.Context, repo *goGit.Repository) error {
-	log.Printf("Attempting to update the repository with latest changes")
+	log.Debugf("Attempting to update the repository with latest changes")
 	workTree, err := repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("Failed to get working tree of repo: %v", err)

@@ -11,7 +11,8 @@ import (
 
 func (app *GetIgnore) interactiveSearch(ctx context.Context) (git.GitIgnoreFile, error) {
 	var file git.GitIgnoreFile
-	// Loop while context is not cancelled until we find a search result
+
+	// Loop while context is not cancelled or until we find a search result
 	for ctx.Err() == nil {
 		searchPrompt := promptui.Prompt{Label: "Search"}
 		query, err := searchPrompt.Run()

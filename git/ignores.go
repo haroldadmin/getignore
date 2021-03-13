@@ -2,9 +2,9 @@ package git
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 
+	"github.com/apex/log"
 	"github.com/sahilm/fuzzy"
 )
 
@@ -42,7 +42,7 @@ func (i *Ignores) FindIgnores() error {
 		gitIgnores = append(gitIgnores, gitIgnore)
 	}
 
-	log.Printf("Found %d .gitignore files", len(gitIgnores))
+	log.Debugf("Found %d .gitignore files", len(gitIgnores))
 	i.gitIgnores = gitIgnores
 
 	return nil
