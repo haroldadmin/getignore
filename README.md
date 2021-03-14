@@ -26,6 +26,8 @@ Run `getignore`, search for a file, and you're done!
 - Install the [Go programming language](https://golang.org/)
 - Run `go get github.com/haroldadmin/getignore`
 
+There are open issues for making `getignore` available as [pre-compiled binaries](https://github.com/haroldadmin/getignore/issues/3) and also with [various](https://github.com/haroldadmin/getignore/issues/1) [package managers](https://github.com/haroldadmin/getignore/issues/2).
+
 ## Contributions
 
 `getignore` is a very small side-project, and I would continue to maintain it in my free time. If you would like to lend a hand by adding new features or fix bugs, feel free to open issues or pull requests.
