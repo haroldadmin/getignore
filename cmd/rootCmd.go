@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/haroldadmin/getignore/app"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
+	"github.com/haroldadmin/getignore/internal/app"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +16,7 @@ var RootCmd *cobra.Command = &cobra.Command{
 	Short: "Fetch .gitignore files right from the terminal",
 	RunE: func(command *cobra.Command, args []string) error {
 		ctx := command.Context()
+		setupLogger(verbose)
 
 		getignore, err := app.Create(ctx, app.GetIgnoreOptions{
 			ShouldUpdate: noUpdate,
@@ -42,7 +45,17 @@ func init() {
 	flags.BoolVarP(&verbose, "verbose", "v", false, "Log extra information to the console")
 	flags.BoolVar(&noUpdate, "no-update", false, "Skip pulling latest changes in gitignore repo before searching")
 	flags.StringVarP(&outputFile, "output", "o", ".gitignore", "Path of .gitignore file to be written")
-	flags.StringVarP(&searchQuery, "search", "s", "", "Search query for matching gitignore files")
+	flags.StringVarP(&searchQuery, "search", "s", "", "Search query to for non-interactive search")
+}
+
+func setupLogger(verbose bool) {
+	level := log.ErrorLevel
+	if verbose {
+		level = log.DebugLevel
+	}
+
+	log.SetLevel(level)
+	log.SetHandler(cli.Default)
 }
 
 func Execute(ctx context.Context) {

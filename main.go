@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/apex/log"
 	"github.com/haroldadmin/getignore/cmd"
-	"github.com/hashicorp/go.net/context"
 )
 
 func main() {

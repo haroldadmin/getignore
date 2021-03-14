@@ -15,22 +15,22 @@ type GitIgnoreFile struct {
 
 type Ignores struct {
 	RepoDir    string
-	gitIgnores []GitIgnoreFile
+	GitIgnores []GitIgnoreFile
 }
 
 func (i *Ignores) String(index int) string {
-	return i.gitIgnores[index].Name
+	return i.GitIgnores[index].Name
 }
 
 func (i *Ignores) Len() int {
-	return len(i.gitIgnores)
+	return len(i.GitIgnores)
 }
 
 func (i *Ignores) FindIgnores() error {
 	pattern := i.RepoDir + string(filepath.Separator) + "*.gitignore"
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
-		return fmt.Errorf("Failed to find .gitignore files: %v", err)
+		return fmt.Errorf("failed to find .gitignore files: %v", err)
 	}
 
 	gitIgnores := make([]GitIgnoreFile, 0)
@@ -43,7 +43,7 @@ func (i *Ignores) FindIgnores() error {
 	}
 
 	log.Debugf("Found %d .gitignore files", len(gitIgnores))
-	i.gitIgnores = gitIgnores
+	i.GitIgnores = gitIgnores
 
 	return nil
 }
@@ -54,7 +54,7 @@ func (i *Ignores) SearchIgnores(query string, maxResults int) []GitIgnoreFile {
 
 	for matchNumber := 0; matchNumber < maxResults && matchNumber < len(matches); matchNumber++ {
 		match := matches[matchNumber]
-		results = append(results, i.gitIgnores[match.Index])
+		results = append(results, i.GitIgnores[match.Index])
 	}
 
 	return results

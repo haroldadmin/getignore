@@ -59,7 +59,7 @@ func (app *GetIgnore) Start(ctx context.Context) {
 	}
 
 	if err != nil {
-		log.WithError(err).Errorf("Search failed")
+		log.WithError(err).Errorf("search failed")
 		return
 	}
 
