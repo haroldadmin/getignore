@@ -8,11 +8,15 @@ Start your new projects right, by including a `.gitignore` file from the very be
 
 ## Usage
 
-- Interactive: Run `getignore`, search for a file, and you're done!
+### Interactive
+
+Run `getignore`, search for a file, and you're done!
 
 ![interactive-search](./media/interactive-search.gif)
 
-- Non-interactive: Run `getignore --search <query>`. 
+### Non-interactive
+
+- Run `getignore --search <query>`. 
 - `getignore` will automatically pick the best matching search result and append its contents to your `.gitignore` file
 
 ![non-interactive search](./media/getignore-non-interactive.png)
