@@ -1,5 +1,7 @@
 # getignore
 
+[![Build and Test](https://github.com/haroldadmin/getignore/actions/workflows/build-test.yml/badge.svg)](https://github.com/haroldadmin/getignore/actions/workflows/build-test.yml)
+
 `getignore` is a command-line utility to fetch `.gitignore` files from [Github's Gitignore](https://www.github.com/github/gitignore) repository.
 
 Start your new projects right, by including a `.gitignore` file from the very beginning!
