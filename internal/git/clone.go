@@ -37,12 +37,12 @@ func Clone(ctx context.Context, skipUpdate bool) (string, error) {
 func getRepoDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("Could not access home directory: %v", err)
+		return "", fmt.Errorf("could not access home directory: %v", err)
 	}
 
 	repoDir := filepath.Join(home, ".getignore", "gitignore")
 	if err := os.MkdirAll(repoDir, os.ModePerm); err != nil {
-		return "", fmt.Errorf("Failed to access %v: %v", repoDir, err)
+		return "", fmt.Errorf("failed to access %v: %v", repoDir, err)
 	}
 
 	return repoDir, nil
@@ -66,7 +66,7 @@ func initRepo(ctx context.Context, repoDir string) (*goGit.Repository, error) {
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Failed to clone repository: %v", err)
+			return nil, fmt.Errorf("failed to clone repository: %v", err)
 		}
 	}
 
@@ -77,12 +77,12 @@ func updateRepo(ctx context.Context, repo *goGit.Repository) error {
 	log.Debugf("Attempting to update the repository with latest changes")
 	workTree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("Failed to get working tree of repo: %v", err)
+		return fmt.Errorf("failed to get working tree of repo: %v", err)
 	}
 
 	err = workTree.PullContext(ctx, &goGit.PullOptions{RemoteName: "origin"})
 	if err != nil && err != goGit.NoErrAlreadyUpToDate {
-		return fmt.Errorf("Failed to pull latest changes: %v", err)
+		return fmt.Errorf("failed to pull latest changes: %v", err)
 	}
 
 	return nil
