@@ -23,10 +23,15 @@ Run `getignore`, search for a file, and you're done!
 
 ## Installation
 
+You can find pre-compiled binaries for popular platforms on the [Releases](https://github.com/haroldadmin/getignore/releases) page.
+
+### Building from source
+
 - Install the [Go programming language](https://golang.org/)
 - Run `go get github.com/haroldadmin/getignore`
 
-There are open issues for making `getignore` available as [pre-compiled binaries](https://github.com/haroldadmin/getignore/issues/3) and also with [various](https://github.com/haroldadmin/getignore/issues/1) [package managers](https://github.com/haroldadmin/getignore/issues/2).
+### Automated Release Publication
+There are open issues for making `getignore` available as [pre-compiled binaries](https://github.com/haroldadmin/getignore/issues/3) and also with [various](https://github.com/haroldadmin/getignore/issues/1) [package managers](https://github.com/haroldadmin/getignore/issues/2) automatically on every release.
 
 ## Contributions
 
