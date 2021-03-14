@@ -19,12 +19,14 @@ var rootCmd *cobra.Command = &cobra.Command{
 var (
 	verbose    bool
 	skipUpdate bool
+	outputFile string
 )
 
 func init() {
 	flags := rootCmd.PersistentFlags()
 	flags.BoolVarP(&verbose, "verbose", "v", false, "Log extra information to the console")
 	flags.BoolVar(&skipUpdate, "no-update", false, "Skip pulling latest changes in gitignore repo before searching")
+	flags.StringVarP(&outputFile, "output", "o", ".gitignore", "Path of .gitignore file to be written")
 }
 
 func Execute() {
