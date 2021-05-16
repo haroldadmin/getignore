@@ -12,7 +12,7 @@ Start your new projects right, by including a `.gitignore` file from the very be
 
 Run `getignore`, search for a file, and you're done!
 
-![interactive-search](./media/interactive-search.gif)
+![interactive-search](./media/getignore.gif)
 
 ### Non-interactive
 
@@ -23,6 +23,24 @@ Run `getignore`, search for a file, and you're done!
 
 ## Installation
 
+### macOS
+
+Use Homebrew:
+
+1. Add the `getignore` tap to your Homebrew installation:
+
+```shell
+brew tap haroldadmin/getignore
+```
+
+2. Install `getignore`:
+
+```shell
+brew install getignore
+```
+
+### Other
+
 You can find pre-compiled binaries for popular platforms on the [Releases](https://github.com/haroldadmin/getignore/releases) page.
 
 ### Building from source
@@ -31,6 +49,7 @@ You can find pre-compiled binaries for popular platforms on the [Releases](https
 - Run `go get github.com/haroldadmin/getignore`
 
 ### Automated Release Publication
+
 There are open issues for making `getignore` available as [pre-compiled binaries](https://github.com/haroldadmin/getignore/issues/3) and also with [various](https://github.com/haroldadmin/getignore/issues/1) [package managers](https://github.com/haroldadmin/getignore/issues/2) automatically on every release.
 
 ## Contributions
