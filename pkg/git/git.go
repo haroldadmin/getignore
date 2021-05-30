@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/go-git/go-git/v5/storage/filesystem"
+	"github.com/haroldadmin/getignore/internal/logs"
 )
 
 var (
@@ -23,8 +23,6 @@ var (
 
 const GitIgnoreRepository string = "https://github.com/github/gitignore"
 
-var logger = log.WithField("name", "git")
-
 // CreateOptions contains config parameters for creating a Git repository
 type CreateOptions struct {
 	RepositoryDir    string
@@ -33,6 +31,7 @@ type CreateOptions struct {
 
 // Create creates a Git Repository and returns a reference to it
 func Create(ctx context.Context, options CreateOptions) (*git.Repository, error) {
+	logger := logs.CreateLogger("git.create")
 	logger.Infof("creating GitService: %s", options.RepositoryDir)
 
 	repoPath, err := filepath.Abs(options.RepositoryDir)
@@ -67,6 +66,7 @@ func initialize(
 	filesystem billy.Filesystem,
 	options CreateOptions,
 ) (*git.Repository, error) {
+	logger := logs.CreateLogger("git.init")
 	logger.Info("attempting to open gitignore repo")
 
 	repository, err := git.Open(storage, filesystem)
@@ -103,6 +103,7 @@ func clone(
 	storage storage.Storer,
 	filesystem billy.Filesystem,
 ) (*git.Repository, error) {
+	logger := logs.CreateLogger("git.clone")
 	logger.Info("cloning gitignore repository")
 	repository, err := git.CloneContext(ctx, storage, filesystem, &git.CloneOptions{
 		URL: GitIgnoreRepository,
@@ -122,6 +123,7 @@ func update(
 	ctx context.Context,
 	repository *git.Repository,
 ) error {
+	logger := logs.CreateLogger("git.update")
 	logger.Info("pulling latest changes into gitignore repository")
 	worktree, err := repository.Worktree()
 	if err != nil {

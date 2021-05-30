@@ -16,6 +16,13 @@ var RootCmd = &cobra.Command{
 	Long: `getignore helps you fetch .gitignore files right from your terminal
 	
 See available commands and usage instructions using the --help flag.`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		logConfig := logs.LogConfig{
+			Verbose:     verbose,
+			VeryVerbose: extraVerbose,
+		}
+		logs.SetupLogs(logConfig)
+	},
 }
 
 func Execute() {
@@ -35,15 +42,10 @@ func init() {
 		&verbose,
 		"verbose",
 		"v",
-		true,
+		false,
 		"Print info logs too",
 	)
 
 	RootCmd.AddCommand(get.GetCmd)
 	RootCmd.AddCommand(search.SearchCmd)
-
-	logs.SetupLogs(logs.LogConfig{
-		Verbose:     verbose,
-		VeryVerbose: extraVerbose,
-	})
 }

@@ -5,13 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5"
+	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/haroldadmin/getignore/pkg/utils"
 )
 
 var defaultSkipDirs []string = []string{".git"}
-var logger = log.WithField("name", "fs")
 
 var (
 	ErrStatFailed = errors.New("stat-failed")
@@ -29,6 +28,7 @@ func ReadDirRecursively(
 	filesystem billy.Filesystem,
 	customSkipDirs ...string,
 ) ([]DiscoveredFile, error) {
+	logger := logs.CreateLogger("fs")
 	allFiles := []DiscoveredFile{}
 	queue := utils.NewQueue()
 	skipDirs := utils.NewSet(customSkipDirs...).Add(defaultSkipDirs...)

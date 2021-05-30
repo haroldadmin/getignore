@@ -9,6 +9,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/haroldadmin/getignore/pkg/git"
 	"github.com/haroldadmin/getignore/pkg/gitignore"
 	"github.com/manifoldco/promptui"
@@ -30,8 +31,6 @@ var (
 	updateRepo   bool
 	appendToFile bool
 )
-
-var logger = log.WithField("name", "search-cmd")
 
 func init() {
 	homeDir, err := homedir.Dir()
@@ -64,6 +63,7 @@ func init() {
 }
 
 func Search(cmd *cobra.Command, args []string) error {
+	logger := logs.CreateLogger("cmd.search")
 	context := cmd.Context()
 	options := git.CreateOptions{
 		RepositoryDir:    repoDir,

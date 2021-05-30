@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5"
+	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/haroldadmin/getignore/pkg/fs"
 	"github.com/sahilm/fuzzy"
 )
@@ -25,8 +25,6 @@ var (
 	ErrCopyFile        = errors.New("failed-to-copy-file")
 	ErrFlushChanges    = errors.New("failed-to-flush-changes")
 )
-
-var logger = log.WithField("name", "gitignore")
 
 type GitIgnoreFile struct {
 	Name string
@@ -60,6 +58,7 @@ type gitIgnoreService struct {
 }
 
 func (g *gitIgnoreService) initialize() error {
+	logger := logs.CreateLogger("gitignore.init")
 	logger.Infof("initializing GitIgnoreService")
 
 	worktree, err := g.repo.Worktree()
@@ -101,6 +100,7 @@ func (g *gitIgnoreService) initialize() error {
 }
 
 func (g *gitIgnoreService) Get(name string) (GitIgnoreFile, error) {
+	logger := logs.CreateLogger("gitignore.get")
 	logger.Infof("getting file %q", name)
 
 	for _, gitignore := range g.gitIgnores {
@@ -114,6 +114,7 @@ func (g *gitIgnoreService) Get(name string) (GitIgnoreFile, error) {
 }
 
 func (g *gitIgnoreService) GetAll() []GitIgnoreFile {
+	logger := logs.CreateLogger("gitignore.getall")
 	logger.Infof("getting all gitignore files")
 
 	duplicate := make([]GitIgnoreFile, len(g.gitIgnores))
@@ -123,6 +124,7 @@ func (g *gitIgnoreService) GetAll() []GitIgnoreFile {
 }
 
 func (g *gitIgnoreService) Search(query string) ([]GitIgnoreFile, error) {
+	logger := logs.CreateLogger("gitignore.search")
 	logger.Infof("searching gitignore files for %q", query)
 
 	var gitIgnoresDataSource GitIgnores = g.gitIgnores
@@ -143,6 +145,7 @@ func (g *gitIgnoreService) Search(query string) ([]GitIgnoreFile, error) {
 }
 
 func (g *gitIgnoreService) Write(file GitIgnoreFile, destFs billy.Filesystem) error {
+	logger := logs.CreateLogger("gitignore.write")
 	worktree, err := g.repo.Worktree()
 	if err != nil {
 		message := "invalid worktree"
@@ -189,6 +192,7 @@ func (g *gitIgnoreService) Write(file GitIgnoreFile, destFs billy.Filesystem) er
 }
 
 func (g *gitIgnoreService) Append(file GitIgnoreFile, destFs billy.Filesystem) error {
+	logger := logs.CreateLogger("gitignore.append")
 	worktree, err := g.repo.Worktree()
 	if err != nil {
 		message := "invalid worktree"

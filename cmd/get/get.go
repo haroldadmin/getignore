@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/haroldadmin/getignore/pkg/git"
 	"github.com/haroldadmin/getignore/pkg/gitignore"
 	"github.com/spf13/cobra"
@@ -16,8 +16,6 @@ var (
 	updateRepo   bool
 	appendToFile bool
 )
-
-var logger = log.WithField("name", "get-cmd")
 
 var GetCmd = &cobra.Command{
 	Use:   "get",
@@ -53,6 +51,7 @@ func init() {
 }
 
 func RunGet(cmd *cobra.Command, args []string) error {
+	logger := logs.CreateLogger("cmd.get")
 	context := cmd.Context()
 	repository, err := git.Create(context, git.CreateOptions{
 		RepositoryDir:    repoDir,
