@@ -1,0 +1,127 @@
+package git
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"path/filepath"
+
+	"github.com/apex/log"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/cache"
+	"github.com/go-git/go-git/v5/storage"
+	"github.com/go-git/go-git/v5/storage/filesystem"
+)
+
+var (
+	ErrInvalidPath    = errors.New("invalid-path")
+	ErrGitServiceInit = errors.New("git-service-init-failed")
+)
+
+const GitIgnoreRepository string = "https://github.com/github/gitignore"
+
+var logger = log.WithField("name", "git")
+
+type CreateOptions struct {
+	RepositoryDir    string
+	UpdateRepository bool
+}
+
+func Create(ctx context.Context, options CreateOptions) (*git.Repository, error) {
+	logger.Infof("creating GitService: %s", options.RepositoryDir)
+
+	absPath, err := filepath.Abs(options.RepositoryDir)
+	if err != nil {
+		logger.Errorf("failed to parse absolute path: %v", err)
+		return nil, ErrInvalidPath
+	}
+
+	fs := osfs.New(absPath)
+	storage := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
+
+	repository, err := initialize(ctx, storage, fs, options)
+	if err != nil {
+		return nil, ErrGitServiceInit
+	}
+
+	return repository, nil
+}
+
+func initialize(
+	ctx context.Context,
+	storage storage.Storer,
+	filesystem billy.Filesystem,
+	options CreateOptions,
+) (*git.Repository, error) {
+	logger.Info("attempting to open gitignore repo")
+
+	repository, err := git.Open(storage, filesystem)
+	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
+		logger.Errorf("failed to open gitignore repo: %v", err)
+		return nil, err
+	}
+
+	if err != nil && errors.Is(err, git.ErrRepositoryNotExists) {
+		repository, err = clone(ctx, storage, filesystem)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	logger.Info("GitService initialized")
+	if !options.UpdateRepository {
+		return repository, nil
+	}
+
+	err = update(ctx, repository)
+	if err != nil {
+		return repository, err
+	}
+
+	return repository, nil
+}
+
+func clone(
+	ctx context.Context,
+	storage storage.Storer,
+	filesystem billy.Filesystem,
+) (*git.Repository, error) {
+	logger.Info("cloning gitignore repository")
+	repository, err := git.CloneContext(ctx, storage, filesystem, &git.CloneOptions{
+		URL: GitIgnoreRepository,
+	})
+
+	if err != nil {
+		message := "failed to clone gitignore repo"
+		logger.Errorf("%s: %v", message, err)
+		return nil, fmt.Errorf("%s: %w", message, err)
+	}
+
+	logger.Info("gitignore repository cloned successfully")
+	return repository, nil
+}
+
+func update(
+	ctx context.Context,
+	repository *git.Repository,
+) error {
+	logger.Info("pulling latest changes into gitignore repository")
+	worktree, err := repository.Worktree()
+	if err != nil {
+		message := "failed to access repository worktree"
+		logger.Errorf("%s: %v", message, err)
+		return fmt.Errorf("%s: %w", message, err)
+	}
+
+	err = worktree.PullContext(ctx, &git.PullOptions{})
+	if err != nil {
+		message := "failed to pull latest changes"
+		logger.Errorf("%s: %v", message, err)
+		return fmt.Errorf("%s: %w", message, err)
+	}
+
+	logger.Info("pulled latest changes successfully")
+	return nil
+}
