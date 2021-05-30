@@ -19,8 +19,6 @@ Run `getignore search`:
 - Run `getignore get <gitignore-filename>` (eg. `getignore get Node.gitignore`).
 - `getignore` will find the file with the matching name and append its contents to your `.gitignore` file
 
-![non-interactive search](./media/getignore-non-interactive.png)
-
 ## Installation
 
 ### macOS
