@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/spf13/cobra"
 )
 
@@ -19,5 +20,15 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Print extra log information")
+	rootCmd.PersistentFlags().BoolVarP(
+		&verbose,
+		"verbose",
+		"v",
+		true,
+		"Print extra log information",
+	)
+
+	logs.SetupLogs(logs.LogConfig{
+		Verbose: verbose,
+	})
 }

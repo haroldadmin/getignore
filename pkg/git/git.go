@@ -18,30 +18,38 @@ import (
 var (
 	ErrInvalidPath    = errors.New("invalid-path")
 	ErrGitServiceInit = errors.New("git-service-init-failed")
+	ErrChroot         = errors.New("failed-to-chroot")
 )
 
 const GitIgnoreRepository string = "https://github.com/github/gitignore"
 
 var logger = log.WithField("name", "git")
 
+// CreateOptions contains config parameters for creating a Git repository
 type CreateOptions struct {
 	RepositoryDir    string
 	UpdateRepository bool
 }
 
+// Create creates a Git Repository and returns a reference to it
 func Create(ctx context.Context, options CreateOptions) (*git.Repository, error) {
 	logger.Infof("creating GitService: %s", options.RepositoryDir)
 
-	absPath, err := filepath.Abs(options.RepositoryDir)
+	repoPath, err := filepath.Abs(options.RepositoryDir)
 	if err != nil {
 		logger.Errorf("failed to parse absolute path: %v", err)
 		return nil, ErrInvalidPath
 	}
+	repositoryFs := osfs.New(repoPath)
 
-	fs := osfs.New(absPath)
-	storage := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
+	dotGitFs, err := repositoryFs.Chroot(".git")
+	if err != nil {
+		logger.Errorf("failed to chroot into .git dir: %v", err)
+		return nil, ErrChroot
+	}
+	dotGitStorage := filesystem.NewStorage(dotGitFs, cache.NewObjectLRUDefault())
 
-	repository, err := initialize(ctx, storage, fs, options)
+	repository, err := initialize(ctx, dotGitStorage, repositoryFs, options)
 	if err != nil {
 		return nil, ErrGitServiceInit
 	}
@@ -49,6 +57,10 @@ func Create(ctx context.Context, options CreateOptions) (*git.Repository, error)
 	return repository, nil
 }
 
+// initialize clones or updates the GitIgnore repository
+// [storage] must be derived from a filesystem rooted at the `.git` directory
+// of the Gitignore repository
+// [filesystem] must be rooted at the repository directory.
 func initialize(
 	ctx context.Context,
 	storage storage.Storer,
@@ -58,15 +70,18 @@ func initialize(
 	logger.Info("attempting to open gitignore repo")
 
 	repository, err := git.Open(storage, filesystem)
-	if err != nil && !errors.Is(err, git.ErrRepositoryNotExists) {
-		logger.Errorf("failed to open gitignore repo: %v", err)
-		return nil, err
-	}
-
-	if err != nil && errors.Is(err, git.ErrRepositoryNotExists) {
-		repository, err = clone(ctx, storage, filesystem)
-		if err != nil {
+	if err != nil {
+		if !errors.Is(err, git.ErrRepositoryNotExists) {
+			logger.Errorf("failed to open gitignore repo: %v", err)
 			return nil, err
+		}
+
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			repository, err = clone(ctx, storage, filesystem)
+			if err != nil {
+				return nil, err
+			}
+			return repository, nil
 		}
 	}
 

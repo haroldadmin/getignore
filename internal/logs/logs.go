@@ -21,7 +21,7 @@ func setupLogLevel(verbose bool) {
 	}
 
 	log.SetLevel(logLevel)
-	}
+}
 
 func setupLogHandler() {
 	log.SetHandler(cli.Default)
