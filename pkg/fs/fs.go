@@ -36,7 +36,7 @@ func ReadDirRecursively(
 	readDir := func(path string) error {
 		dirName := filepath.Base(path)
 		if skipDirs.Contains(dirName) {
-			logger.Infof("Skipped: %s", dirName)
+			logger.Debugf("Skipped: %s", dirName)
 			return nil
 		}
 
@@ -49,13 +49,13 @@ func ReadDirRecursively(
 
 		for _, entry := range dirEntries {
 			if entry.IsDir() {
-				logger.Infof("Dir: %s", entry.Name())
+				logger.Debugf("Dir: %s", entry.Name())
 				queue.Add(filepath.Join(path, entry.Name()))
 				continue
 			}
 
 			if entry.Mode()&os.ModeSymlink == os.ModeSymlink {
-				logger.Infof("Symlink: %s", entry.Name())
+				logger.Debugf("Symlink: %s", entry.Name())
 				discoveredFile := DiscoveredFile{
 					Name:      entry.Name(),
 					Path:      filepath.Join(path, entry.Name()),
@@ -65,7 +65,7 @@ func ReadDirRecursively(
 				continue
 			}
 
-			logger.Infof("File: %s", entry.Name())
+			logger.Debugf("File: %s", entry.Name())
 			discoveredFile := DiscoveredFile{
 				Name:      entry.Name(),
 				Path:      filepath.Join(path, entry.Name()),

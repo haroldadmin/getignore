@@ -82,11 +82,10 @@ func (g *gitIgnoreService) initialize() error {
 
 	logger.Infof("found %d gitignore files", len(gitIgnores))
 	for _, f := range gitIgnores {
-		logger.Infof("%s (%s)", f.Name, f.Path)
+		logger.Debugf("%s (%s)", f.Name, f.Path)
 	}
 
 	g.gitIgnores = gitIgnores
-
 	return nil
 }
 

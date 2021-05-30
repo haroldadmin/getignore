@@ -132,6 +132,11 @@ func update(
 
 	err = worktree.PullContext(ctx, &git.PullOptions{})
 	if err != nil {
+		if err == git.NoErrAlreadyUpToDate {
+			logger.Info("already up to date")
+			return nil
+		}
+
 		message := "failed to pull latest changes"
 		logger.Errorf("%s: %v", message, err)
 		return fmt.Errorf("%s: %w", message, err)

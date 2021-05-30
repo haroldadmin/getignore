@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var append bool
+var appendToFile bool
 
 var getCmd = &cobra.Command{
 	Use:   "get",
@@ -21,5 +21,5 @@ name non-interactively. Exits with an error if no close match is found.`,
 func init() {
 	rootCmd.AddCommand(getCmd)
 
-	getCmd.Flags().BoolVarP(&append, "append", "a", true, "Append to the existing .gitignore rather than overwrite it")
+	getCmd.Flags().BoolVarP(&appendToFile, "append", "a", true, "Append to the existing .gitignore rather than overwrite it")
 }

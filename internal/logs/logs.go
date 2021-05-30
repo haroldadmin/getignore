@@ -6,18 +6,23 @@ import (
 )
 
 type LogConfig struct {
-	Verbose bool
+	Verbose     bool
+	VeryVerbose bool
 }
 
 func SetupLogs(config LogConfig) {
-	setupLogLevel(config.Verbose)
+	setupLogLevel(config.Verbose, config.VeryVerbose)
 	setupLogHandler()
 }
 
-func setupLogLevel(verbose bool) {
+func setupLogLevel(verbose, veryVerbose bool) {
 	logLevel := log.ErrorLevel
 	if verbose {
 		logLevel = log.InfoLevel
+	}
+
+	if veryVerbose {
+		logLevel = log.DebugLevel
 	}
 
 	log.SetLevel(logLevel)

@@ -6,6 +6,7 @@ import (
 )
 
 var verbose bool
+var extraVerbose bool
 
 var rootCmd = &cobra.Command{
 	Use:   "getignore",
@@ -25,10 +26,19 @@ func init() {
 		"verbose",
 		"v",
 		true,
-		"Print extra log information",
+		"Print info logs too",
+	)
+
+	rootCmd.PersistentFlags().BoolVarP(
+		&extraVerbose,
+		"extra-verbose",
+		"vv",
+		false,
+		"Print info and debug logs too",
 	)
 
 	logs.SetupLogs(logs.LogConfig{
-		Verbose: verbose,
+		Verbose:     verbose,
+		VeryVerbose: extraVerbose,
 	})
 }
