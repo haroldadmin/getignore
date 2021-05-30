@@ -1,4 +1,4 @@
-package cmd
+package search
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var searchCmd = &cobra.Command{
+var SearchCmd = &cobra.Command{
 	Use:   "search",
 	Short: "Search for .gitignore files interactively",
 	Long: `The search command runs an interactive flow to search
@@ -31,22 +31,20 @@ var (
 var logger = log.WithField("name", "search-cmd")
 
 func init() {
-	rootCmd.AddCommand(searchCmd)
-
 	homeDir, err := homedir.Dir()
 	if err != nil {
 		log.Fatalf("failed to determine user's home directory: %v", err)
 	}
 	repoDir = filepath.Join(homeDir, ".getignore", "gitignore")
 
-	searchCmd.Flags().StringVar(
+	SearchCmd.Flags().StringVar(
 		&repoDir,
 		"repo-dir",
 		repoDir,
 		"Set custom directory for gitignore repository",
 	)
 
-	searchCmd.Flags().BoolVar(
+	SearchCmd.Flags().BoolVar(
 		&updateRepo,
 		"update-repo",
 		true,

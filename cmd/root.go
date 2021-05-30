@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/haroldadmin/getignore/cmd/get"
+	"github.com/haroldadmin/getignore/cmd/search"
 	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/spf13/cobra"
 )
@@ -8,7 +10,7 @@ import (
 var verbose bool
 var extraVerbose bool
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "getignore",
 	Short: "Fetch .gitignore from your terminal",
 	Long: `getignore helps you fetch .gitignore files right from your terminal
@@ -17,11 +19,11 @@ See available commands and usage instructions using the --help flag.`,
 }
 
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	cobra.CheckErr(RootCmd.Execute())
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(
+	RootCmd.PersistentFlags().BoolVarP(
 		&verbose,
 		"verbose",
 		"v",
@@ -29,13 +31,16 @@ func init() {
 		"Print info logs too",
 	)
 
-	rootCmd.PersistentFlags().BoolVarP(
+	RootCmd.PersistentFlags().BoolVarP(
 		&extraVerbose,
 		"extra-verbose",
-		"vv",
+		"V",
 		false,
 		"Print info and debug logs too",
 	)
+
+	RootCmd.AddCommand(get.GetCmd)
+	RootCmd.AddCommand(search.SearchCmd)
 
 	logs.SetupLogs(logs.LogConfig{
 		Verbose:     verbose,
