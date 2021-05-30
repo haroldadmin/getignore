@@ -94,7 +94,7 @@ func Search(cmd *cobra.Command, args []string) error {
 	workingDirFs := osfs.New(workingDir)
 
 	if appendToFile {
-		logger.Infof("appending contents to %q")
+		logger.Infof("appending contents to %q", selectedFile.Name)
 		err = service.Append(selectedFile, workingDirFs)
 		if err != nil {
 			return err

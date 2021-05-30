@@ -5,6 +5,8 @@ import (
 	"github.com/apex/log/handlers/cli"
 )
 
+var logLevel log.Level
+
 type LogConfig struct {
 	Verbose     bool
 	VeryVerbose bool
@@ -15,8 +17,12 @@ func SetupLogs(config LogConfig) {
 	setupLogHandler()
 }
 
+func GetLogLevel() log.Level {
+	return logLevel
+}
+
 func setupLogLevel(verbose, veryVerbose bool) {
-	logLevel := log.ErrorLevel
+	logLevel = log.ErrorLevel
 	if verbose {
 		logLevel = log.InfoLevel
 	}
