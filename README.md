@@ -10,14 +10,14 @@ Start your new projects right, by including a `.gitignore` file from the very be
 
 ### Interactive
 
-Run `getignore`, search for a file, and you're done!
+Run `getignore search`:
 
 ![interactive-search](./media/getignore.gif)
 
 ### Non-interactive
 
-- Run `getignore --search <query>`. 
-- `getignore` will automatically pick the best matching search result and append its contents to your `.gitignore` file
+- Run `getignore get <gitignore-filename>` (eg. `getignore get Node.gitignore`).
+- `getignore` will find the file with the matching name and append its contents to your `.gitignore` file
 
 ![non-interactive search](./media/getignore-non-interactive.png)
 
