@@ -24,19 +24,19 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(
-		&verbose,
-		"verbose",
-		"v",
-		true,
-		"Print info logs too",
-	)
-
-	RootCmd.PersistentFlags().BoolVarP(
 		&extraVerbose,
 		"extra-verbose",
 		"V",
 		false,
 		"Print info and debug logs too",
+	)
+
+	RootCmd.PersistentFlags().BoolVarP(
+		&verbose,
+		"verbose",
+		"v",
+		true,
+		"Print info logs too",
 	)
 
 	RootCmd.AddCommand(get.GetCmd)

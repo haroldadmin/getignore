@@ -2,8 +2,10 @@ package get
 
 import (
 	"errors"
+	"os"
 
 	"github.com/apex/log"
+	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/haroldadmin/getignore/pkg/git"
 	"github.com/haroldadmin/getignore/pkg/gitignore"
 	"github.com/spf13/cobra"
@@ -46,7 +48,7 @@ func init() {
 		&updateRepo,
 		"update-repo",
 		true,
-		"Updating the gitignore repository",
+		"Update the gitignore repository with upstream changes",
 	)
 }
 
@@ -77,5 +79,30 @@ func RunGet(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Infof("selected %q", file.Name)
+
+	workingDir, err := os.Getwd()
+	if err != nil {
+		logger.Errorf("failed to determine working directory: %v", err)
+		return err
+	}
+	workingDirFs := osfs.New(workingDir)
+
+	if appendToFile {
+		logger.Infof("appending contents to %q")
+		err = service.Append(file, workingDirFs)
+		if err != nil {
+			return err
+		}
+		logger.Info("appended successfully")
+		return nil
+	}
+
+	logger.Infof("overwriting .gitignore")
+	err = service.Write(file, workingDirFs)
+	if err != nil {
+		return err
+	}
+	logger.Infof(".gitignore written successfully")
+
 	return nil
 }

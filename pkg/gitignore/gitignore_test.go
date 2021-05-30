@@ -2,6 +2,7 @@ package gitignore_test
 
 import (
 	"errors"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -106,6 +107,90 @@ func TestGitignoreService(t *testing.T) {
 			_, err = service.Search("golang")
 			assert.Error(t, err)
 			assert.True(t, errors.Is(err, gitignore.ErrNotFound))
+		})
+	})
+
+	t.Run("Write", func(t *testing.T) {
+		t.Run("it should create a .gitignore file if it doesn't exist", func(t *testing.T) {
+			repo := testRepository(t)
+			destFs := memfs.New()
+
+			service, err := gitignore.Create(repo)
+			assert.NoError(t, err)
+
+			gitIgnoreFile := service.GetAll()[0]
+			err = service.Write(gitIgnoreFile, destFs)
+			assert.NoError(t, err)
+
+			files, err := destFs.ReadDir("/")
+			assert.NoError(t, err)
+			assert.Len(t, files, 1)
+
+			file := files[0]
+			assert.Equal(t, file.Name(), ".gitignore")
+		})
+
+		t.Run("it should truncate an existing .gitignore file if it exists", func(t *testing.T) {
+			destFs := memfs.New()
+			f, err := destFs.Create(".gitignore")
+			assert.NoError(t, err)
+			defer f.Close()
+
+			f.Write([]byte("test-data"))
+
+			repo := testRepository(t)
+			service, err := gitignore.Create(repo)
+			assert.NoError(t, err)
+
+			gitIgnoreFile := service.GetAll()[0]
+			err = service.Write(gitIgnoreFile, destFs)
+			assert.NoError(t, err)
+
+			contents, err := ioutil.ReadAll(f)
+			assert.NoError(t, err)
+			assert.NotContains(t, string(contents), "test-data")
+		})
+	})
+
+	t.Run("Append", func(t *testing.T) {
+		t.Run("it should return an error if there is no existing gitignore file", func(t *testing.T) {
+			destFs := memfs.New()
+			repo := testRepository(t)
+			service, err := gitignore.Create(repo)
+			assert.NoError(t, err)
+
+			gitIgnoreFile := service.GetAll()[0]
+
+			err = service.Append(gitIgnoreFile, destFs)
+			assert.Error(t, err)
+			assert.True(t, errors.Is(err, gitignore.ErrInvalidFile))
+		})
+
+		t.Run("it should append to an existing gitignore file", func(t *testing.T) {
+			destFs := memfs.New()
+			f, err := destFs.Create(".gitignore")
+			assert.NoError(t, err)
+			defer f.Close()
+
+			f.Write([]byte("test-data"))
+			c, _ := ioutil.ReadAll(f)
+			t.Log(string(c))
+
+			repo := testRepository(t)
+			service, err := gitignore.Create(repo)
+			assert.NoError(t, err)
+
+			gitIgnoreFile := service.GetAll()[0]
+			err = service.Append(gitIgnoreFile, destFs)
+			assert.NoError(t, err)
+
+			f.Seek(0, 0)
+			contents, err := ioutil.ReadAll(f)
+			assert.NoError(t, err)
+
+			stringContents := string(contents)
+			assert.NoError(t, err)
+			assert.True(t, strings.HasPrefix(stringContents, "test-data"))
 		})
 	})
 }

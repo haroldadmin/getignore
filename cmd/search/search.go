@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/apex/log"
+	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/haroldadmin/getignore/pkg/git"
 	"github.com/haroldadmin/getignore/pkg/gitignore"
 	"github.com/manifoldco/promptui"
@@ -24,8 +26,9 @@ for .gitignore files using their name.`,
 }
 
 var (
-	repoDir    string
-	updateRepo bool
+	repoDir      string
+	updateRepo   bool
+	appendToFile bool
 )
 
 var logger = log.WithField("name", "search-cmd")
@@ -36,6 +39,14 @@ func init() {
 		log.Fatalf("failed to determine user's home directory: %v", err)
 	}
 	repoDir = filepath.Join(homeDir, ".getignore", "gitignore")
+
+	SearchCmd.Flags().BoolVarP(
+		&appendToFile,
+		"append",
+		"a",
+		true,
+		"Append to the existing .gitignore rather than overwrite it",
+	)
 
 	SearchCmd.Flags().StringVar(
 		&repoDir,
@@ -48,7 +59,7 @@ func init() {
 		&updateRepo,
 		"update-repo",
 		true,
-		"Updating the gitignore repository",
+		"Update the gitignore repository with upstream changes",
 	)
 }
 
@@ -75,6 +86,30 @@ func Search(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Infof("selected %s", selectedFile.Name)
+	workingDir, err := os.Getwd()
+	if err != nil {
+		logger.Errorf("failed to determine working directory: %v", err)
+		return err
+	}
+	workingDirFs := osfs.New(workingDir)
+
+	if appendToFile {
+		logger.Infof("appending contents to %q")
+		err = service.Append(selectedFile, workingDirFs)
+		if err != nil {
+			return err
+		}
+		logger.Info("appended successfully")
+		return nil
+	}
+
+	logger.Infof("overwriting .gitignore")
+	err = service.Write(selectedFile, workingDirFs)
+	if err != nil {
+		return err
+	}
+	logger.Infof(".gitignore written successfully")
+
 	return nil
 }
 
