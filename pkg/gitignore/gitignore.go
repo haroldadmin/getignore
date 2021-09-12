@@ -206,7 +206,7 @@ func (g *gitIgnoreService) Append(file GitIgnoreFile, destFs billy.Filesystem) e
 			return g.Write(file, destFs)
 		} else {
 			message := "failed to check if .gitignore already exists"
-			logger.Errorf("%s: %v", message)
+			logger.Errorf("%s: %v", message, err)
 			return err
 		}
 	}

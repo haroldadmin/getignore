@@ -153,7 +153,7 @@ func TestGitignoreService(t *testing.T) {
 	})
 
 	t.Run("Append", func(t *testing.T) {
-		t.Run("it should return an error if there is no existing gitignore file", func(t *testing.T) {
+		t.Run("it should not return an error if there is no existing gitignore file", func(t *testing.T) {
 			destFs := memfs.New()
 			repo := testRepository(t)
 			service, err := gitignore.Create(repo)
@@ -162,8 +162,7 @@ func TestGitignoreService(t *testing.T) {
 			gitIgnoreFile := service.GetAll()[0]
 
 			err = service.Append(gitIgnoreFile, destFs)
-			assert.Error(t, err)
-			assert.True(t, errors.Is(err, gitignore.ErrInvalidFile))
+			assert.NoError(t, err)
 		})
 
 		t.Run("it should append to an existing gitignore file", func(t *testing.T) {
