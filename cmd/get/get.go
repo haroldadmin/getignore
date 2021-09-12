@@ -42,7 +42,7 @@ Creates a new .gitignore file if it doesn't exist.`,
 	GetCmd.Flags().StringVar(
 		&repoDir,
 		"repo-dir",
-		repoDir,
+		git.DefaultRepoDir(),
 		"Set custom directory for gitignore repository",
 	)
 

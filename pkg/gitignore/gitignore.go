@@ -200,7 +200,17 @@ func (g *gitIgnoreService) Append(file GitIgnoreFile, destFs billy.Filesystem) e
 		return ErrInvalidWorktree
 	}
 
-	repoFs := worktree.Filesystem
+	_, err = destFs.Stat(".gitignore")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return g.Write(file, destFs)
+		} else {
+			message := "failed to check if .gitignore already exists"
+			logger.Errorf("%s: %v", message)
+			return err
+		}
+	}
+
 	destFile, err := destFs.OpenFile(".gitignore", os.O_APPEND|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		message := "failed to open .gitignore file"
@@ -209,6 +219,7 @@ func (g *gitIgnoreService) Append(file GitIgnoreFile, destFs billy.Filesystem) e
 	}
 	defer destFile.Close()
 
+	repoFs := worktree.Filesystem
 	srcFile, err := repoFs.Open(file.Path)
 	if err != nil {
 		message := "failed to open source .gitignore file"

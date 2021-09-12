@@ -13,6 +13,7 @@ import (
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/haroldadmin/getignore/internal/logs"
+	"github.com/mitchellh/go-homedir"
 )
 
 var (
@@ -27,6 +28,14 @@ const GitIgnoreRepository string = "https://github.com/github/gitignore"
 type CreateOptions struct {
 	RepositoryDir    string
 	UpdateRepository bool
+}
+
+func DefaultRepoDir() string {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
+	return filepath.Join(homeDir, ".getignore", "gitignore")
 }
 
 // Create creates a Git Repository and returns a reference to it

@@ -5,15 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/haroldadmin/getignore/internal/logs"
 	"github.com/haroldadmin/getignore/pkg/git"
 	"github.com/haroldadmin/getignore/pkg/gitignore"
 	"github.com/manifoldco/promptui"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
 
@@ -36,12 +33,6 @@ var (
 )
 
 func init() {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		log.Fatalf("failed to determine user's home directory: %v", err)
-	}
-	repoDir = filepath.Join(homeDir, ".getignore", "gitignore")
-
 	SearchCmd.Flags().BoolVarP(
 		&appendToFile,
 		"append",
@@ -54,7 +45,7 @@ Creates a new .gitignore file if it doesn't exist.`,
 	SearchCmd.Flags().StringVar(
 		&repoDir,
 		"repo-dir",
-		repoDir,
+		git.DefaultRepoDir(),
 		"Set custom directory for gitignore repository",
 	)
 
