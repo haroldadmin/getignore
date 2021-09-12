@@ -19,9 +19,12 @@ var (
 
 var GetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get the .gitignore file that matches the supplied name",
-	Long: `get command fetches the .gitignore that best matches the supplied
-name non-interactively. Exits with an error if no close match is found.`,
+	Short: "Get the .gitignore file with the exact given name",
+	Long: `Non-interactively fetches the .gitignore file with the exact name. 
+Exits with an error if no match is found.
+
+Use this command if you're sure of the exact name of the .gitignore file
+you're looking for.`,
 	Args: cobra.ExactArgs(1),
 	RunE: RunGet,
 }
@@ -32,7 +35,8 @@ func init() {
 		"append",
 		"a",
 		true,
-		"Append to the existing .gitignore rather than overwrite it",
+		`Append to the existing .gitignore rather than overwrite it. 
+Creates a new .gitignore file if it doesn't exist.`,
 	)
 
 	GetCmd.Flags().StringVar(

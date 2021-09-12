@@ -21,7 +21,10 @@ var SearchCmd = &cobra.Command{
 	Use:   "search",
 	Short: "Search for .gitignore files interactively",
 	Long: `The search command runs an interactive flow to search
-for .gitignore files using their name.`,
+for .gitignore files using their name.
+
+Use this command when you're unsure of the exact name of the .gitignore
+file you're looking for.`,
 	Args: cobra.NoArgs,
 	RunE: Search,
 }
@@ -44,7 +47,8 @@ func init() {
 		"append",
 		"a",
 		true,
-		"Append to the existing .gitignore rather than overwrite it",
+		`Append to the existing .gitignore rather than overwrite it
+Creates a new .gitignore file if it doesn't exist.`,
 	)
 
 	SearchCmd.Flags().StringVar(
